@@ -4,6 +4,7 @@ import random
 from datetime import datetime
 from discord import app_commands
 from discord.ext import commands
+from discord.ui import Button, View
 
 intents = discord.Intents().all()
 intents.message_content = True
@@ -67,18 +68,34 @@ async def unlock(ctx):
 @bot.command()
 async def help(ctx: commands.Context) -> discord.Message:
     embed = discord.Embed(title="Help", description=f"Voici la liste des commandes de {bot.user.name}", color=0x800080)
+    embed.add_field(name="**Commandes Générales**", value="Voici les commandes que tout le monde peut utiliser.", inline=False)
     embed.add_field(name="!ping", value="Affiche la latence du bot.", inline=False)
     embed.add_field(name="!say", value="Fait dire quelque chose au bot.", inline=False)
-    embed.add_field(name="!lock", value="Verrouille le chanel actuel.", inline=False)
-    embed.add_field(name="!unlock", value="Déverrouille le chanel actuel.", inline=False)
     embed.add_field(name="!help", value="Affiche l'ensemble des commandes présentes.", inline=False)
-    embed.add_field(name="!setactivity", value=f"Permet de changer directement le status de {bot.user.name}.", inline=False)
-    embed.add_field(name="!nuke", value=f"Permet de supprimer l'entièreté des messages d'un channel.", inline=False)
-    embed.add_field(name="!serverinfo", value="Affiche les informations du serveur.", inline=False)
-    embed.add_field(name="!support", value="Pour demander de l'aide", inline=False)
-    embed.add_field(name="!ban", value="Sert à bannir un utilisateur du serveur.", inline=False)
-    embed.add_field(name="!unban", value="Sert à débannir un utilisateur du serveur.", inline=False)
-    return await ctx.send(embed=embed)
+    embed.add_field(name="!support", value="Pour demander de l'aide.", inline=False)
+
+    button = Button(label="Voir les commandes Admin", style=discord.ButtonStyle.primary)
+
+    async def button_callback(interaction: discord.Interaction):
+        # Modifie l'embed avec les commandes administratives
+        admin_embed = discord.Embed(title="Help - Commandes Administratives", description=f"Commandes administratives", color=0x800080)
+        admin_embed.add_field(name="!lock", value="Verrouille le chanel actuel.", inline=False)
+        admin_embed.add_field(name="!unlock", value="Déverrouille le chanel actuel.", inline=False)
+        admin_embed.add_field(name="!setactivity", value=f"Permet de changer directement le status de {bot.user.name}.", inline=False)
+        admin_embed.add_field(name="!nuke", value=f"Permet de supprimer l'entièreté des messages d'un channel.", inline=False)
+        admin_embed.add_field(name="!serverinfo", value="Affiche les informations du serveur.", inline=False)
+        admin_embed.add_field(name="!ban", value="Sert à bannir un utilisateur du serveur.", inline=False)
+        admin_embed.add_field(name="!unban", value="Sert à débannir un utilisateur du serveur.", inline=False)
+        admin_embed.add_field(name="!mute", value="Permet de mute un utilisateur.", inline=False)
+        admin_embed.add_field(name="!unmute", value="Permet de unmute un utilisateur.", inline=False)
+        
+        await interaction.response.edit_message(embed=admin_embed, view=None)
+    button.callback = button_callback
+
+    view = View()
+    view.add_item(button)
+
+    await ctx.send(embed=embed, view=view)
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -181,7 +198,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
             await ctx.send("Je n'ai pas les permissions nécessaires pour mute cet utilisateur.")
         except discord.HTTPException:
             await ctx.send("Une erreur s'est produite lors du mute.")
-            
+
 # Unmute
 @bot.command()
 async def unmute(ctx, member: discord.Member):
