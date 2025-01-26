@@ -77,7 +77,6 @@ async def help(ctx: commands.Context) -> discord.Message:
     button = Button(label="Voir les commandes Admin", style=discord.ButtonStyle.primary)
 
     async def button_callback(interaction: discord.Interaction):
-        # Modifie l'embed avec les commandes administratives
         admin_embed = discord.Embed(title="Help - Commandes Administratives", description=f"Commandes administratives", color=0x800080)
         admin_embed.add_field(name="!lock", value="Verrouille le chanel actuel.", inline=False)
         admin_embed.add_field(name="!unlock", value="Déverrouille le chanel actuel.", inline=False)
