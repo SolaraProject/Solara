@@ -73,9 +73,11 @@ async def help(ctx: commands.Context) -> discord.Message:
     embed.add_field(name="!unlock", value="Déverrouille le chanel actuel.", inline=False)
     embed.add_field(name="!help", value="Affiche l'ensemble des commandes présentes.", inline=False)
     embed.add_field(name="!setactivity", value=f"Permet de changer directement le status de {bot.user.name}.", inline=False)
-    embed.add_field(name="!nuke", value=f"Permet de supprimer l'entièreté des messages d'un channel", inline=False)
-    embed.add_field(name="!serverinfo", value="Affiche les informations du serveur", inline=False)
+    embed.add_field(name="!nuke", value=f"Permet de supprimer l'entièreté des messages d'un channel.", inline=False)
+    embed.add_field(name="!serverinfo", value="Affiche les informations du serveur.", inline=False)
     embed.add_field(name="!support", value="Pour demander de l'aide", inline=False)
+    embed.add_field(name="!ban", value="Sert à bannir un utilisateur du serveur.", inline=False)
+    embed.add_field(name="!unban", value="Sert à débannir un utilisateur du serveur.", inline=False)
     return await ctx.send(embed=embed)
 
 @bot.command()
@@ -161,6 +163,42 @@ async def unban(ctx, user: discord.User, *, reason=None):
             await ctx.send("Une erreur s'est produite lors du dé-bannissement.")
     else:
         await ctx.send("Tu n'as pas la permission de dé-bannir des membres.")
+
+# Mute
+@bot.command()
+async def mute(ctx, member: discord.Member, *, reason=None):
+    if ctx.author.guild_permissions.manage_roles:
+        muted_role = discord.utils.get(ctx.guild.roles, name="mute")
+        if not muted_role:
+            muted_role = await ctx.guild.create_role(name="mute", permissions=discord.Permissions.none())
+            for channel in ctx.guild.channels:
+                await channel.set_permissions(muted_role, send_messages=False)
+
+        try:
+            await member.add_roles(muted_role, reason=reason)
+            await ctx.send(f"{member} a été mute avec succès!")
+        except discord.Forbidden:
+            await ctx.send("Je n'ai pas les permissions nécessaires pour mute cet utilisateur.")
+        except discord.HTTPException:
+            await ctx.send("Une erreur s'est produite lors du mute.")
+            
+# Unmute
+@bot.command()
+async def unmute(ctx, member: discord.Member):
+    if ctx.author.guild_permissions.manage_roles:
+        muted_role = discord.utils.get(ctx.guild.roles, name="mute")
         
+        if not muted_role:
+            await ctx.send("Le rôle 'mute' n'existe pas dans ce serveur.")
+            return
+        
+        try:
+            await member.remove_roles(muted_role, reason="Unmute")
+            await ctx.send(f"{member} a été unmute avec succès!")
+        except discord.Forbidden:
+            await ctx.send("Je n'ai pas les permissions nécessaires pour unmute cet utilisateur.")
+        except discord.HTTPException:
+            await ctx.send("Une erreur s'est produite lors du unmute.")
+            
 # Token
 bot.run("")
