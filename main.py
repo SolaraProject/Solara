@@ -1,6 +1,7 @@
 import discord
 import asyncio
 import random
+from datetime import datetime
 from discord import app_commands
 from discord.ext import commands
 
@@ -95,7 +96,7 @@ async def setactivity(ctx, activity_type: str, *, activity: str):
 @bot.command()
 @commands.has_permissions(manage_messages=True)
 async def nuke(ctx):
-    await ctx.channel.purge()  # Supprime tous les messages dans le canal
+    await ctx.channel.purge()
     channel_name = ctx.channel.name
     await ctx.send(f"le channel {channel_name} a bien été nuke.")
 
@@ -131,77 +132,35 @@ async def support(ctx: commands.Context) -> discord.Message:
     embed.set_image(url="https://64.media.tumblr.com/c3ef835b5aa64778be2a3265bb5ef692/f0b242a57b5ffae2-76/s640x960/ec64b729b5ddbc22f9eb9f4ef729df7c75c72119.gif")
     return await ctx.send(embed=embed)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Ban
+@bot.command()
+async def ban(ctx, member: discord.Member, *, reason=None):
+    if ctx.author.guild_permissions.ban_members:
+        try:
+            await member.ban(reason=reason)
+            await ctx.send(f"{member} a été banni avec succès !")
+        except discord.Forbidden:
+            await ctx.send("Je n'ai pas les permissions nécessaires pour bannir cet utilisateur.")
+        except discord.HTTPException:
+            await ctx.send("Une erreur s'est produite lors du bannissement.")
+    else:
+        await ctx.send("Tu n'as pas la permission de bannir des membres.")
+
+# Unban
+
+@bot.command()
+async def unban(ctx, user: discord.User, *, reason=None):
+    """Commande pour dé-bannir un membre du serveur"""
+    if ctx.author.guild_permissions.ban_members:  # Vérifie si l'utilisateur a les permissions nécessaires
+        try:
+            await ctx.guild.unban(user, reason=reason)
+            await ctx.send(f"{user} a été débanni avec succès !")
+        except discord.Forbidden:
+            await ctx.send("Je n'ai pas les permissions nécessaires pour dé-bannir cet utilisateur.")
+        except discord.HTTPException:
+            await ctx.send("Une erreur s'est produite lors du dé-bannissement.")
+    else:
+        await ctx.send("Tu n'as pas la permission de dé-bannir des membres.")
+        
+# Token
 bot.run("")
-
