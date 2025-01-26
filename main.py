@@ -124,7 +124,7 @@ async def serverinfo(ctx):
             break
 
 # Support
-@bot.tree.command()
+@bot.command()
 async def support(ctx: commands.Context) -> discord.Message:
     embed = discord.Embed(title="Support", description=f"Pour obtenir de l'aide, vous pouvez rejoindre le serveur Discord de Solara :", color=0x800080)
     embed.add_field(name="Serveur Discord Officiel", value="[Discord Officiel](https://discord.gg/Utrd4893M8)")
